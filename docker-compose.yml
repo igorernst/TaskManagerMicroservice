@@ -1,0 +1,80 @@
+
+services:
+  microservice:
+    build: ./API
+    container_name: api
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=task-api
+    depends_on:
+      - postgres
+      - logger
+    ports:
+      - "5056:5056"
+    networks:
+      - app-network
+
+  logger:
+    build: ./Logger
+    container_name: logger
+    ports:
+      - "5209:5209"
+    networks:
+      - app-network
+
+  consumer:
+    build: ./RabbitConsumer
+    container_name: consumer
+    ports: 
+      - "5001:5001"
+    networks:
+      - consumer-network
+
+  postgres:
+    image: postgres:15
+    container_name: my_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task-api
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # RabbitMQ main port
+      - "15672:15672"   # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
+      - consumer-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 80:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge
+  consumer-network:
+    driver: bridge
