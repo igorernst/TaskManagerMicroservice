@@ -13,7 +13,6 @@ public class TaskRepository : IRepository<TaskEntity>
     private readonly TaskAPIDbContext _context;
     private readonly DbSet<TaskEntity> _dbSet;
 
-    
     public TaskRepository(TaskAPIDbContext context)
     {
         _context = context;

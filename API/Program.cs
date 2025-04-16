@@ -5,16 +5,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TaskAPIDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TaskApiDatabase")));
 builder.Services.Configure<LoggingApiSettings>(builder.Configuration.GetSection("LoggingServiceApi"));
-builder.Services.Configure<LogPublisherConfig>(builder.Configuration.GetSection("LogPublisherConfig"));
 builder.Services.AddScoped<LoggingService>();
 builder.Services.AddScoped<TaskRepository>();
-//builder.Services.AddScoped<LogPublisher>();
+
+var rabbitMqHost = builder.Configuration["LogPublisherConfig:HostName"];
 
 builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((ctx, config) =>
     {
-        config.Host("rabbitmq", "/");
+        config.Host(rabbitMqHost, "/");
     });
 });
 
@@ -25,11 +25,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// if (app.Environment.IsDevelopment())
-// {
-app.UseSwagger();
-app.UseSwaggerUI();
-//}
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 

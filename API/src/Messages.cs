@@ -24,9 +24,3 @@ public interface TaskDeleted
 {
     int Id {get; set;}
 }
-
-// public record CreateTaskEvent(string Title, string Description, DateTime CreatedAt, DateTime UpdatedAt);
-
-// public record ChangeTaskStatusEvent(int Id, int StatusId);
-
-// public record DeleteTaskEvent(int Id);
