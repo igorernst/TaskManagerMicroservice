@@ -1,7 +1,5 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
 
 var host = Host.CreateDefaultBuilder(args)
 .ConfigureServices((_, services) =>
@@ -23,8 +21,6 @@ var host = Host.CreateDefaultBuilder(args)
             });
         });
     });
-
-    services.AddMassTransitHostedService();
 })
 .Build();
 
