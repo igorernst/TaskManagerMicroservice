@@ -5,7 +5,7 @@ public enum TaskStatus {
     Done
 }
 
-record TaskNew(
+public record TaskNew(
     int Id,
     string Title,
     string Description,
@@ -16,7 +16,7 @@ record TaskNew(
     string Action = "New"
 );
 
-record TaskEdit(
+public record TaskEdit(
     int Id,
     string Title,
     string Description,
@@ -27,7 +27,7 @@ record TaskEdit(
     string Action = "Edit"
 );
 
-record TaskDelete(
+public record TaskDelete(
     int Id,
     DateTime? Timestamp,
     Guid logId,

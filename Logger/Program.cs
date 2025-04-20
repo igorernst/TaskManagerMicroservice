@@ -1,10 +1,13 @@
-using Microsoft.Extensions.Logging;
+
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<PostNewTaskHandler>();
+builder.Services.AddScoped<PostEditTaskHandler>();
+builder.Services.AddScoped<PostDeleteTaskHandler>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -19,39 +22,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/api/logs/tasks/new", (TaskNew entry, ILoggerFactory loggerFactory) =>
-{
-    var logger = loggerFactory.CreateLogger("AppLogger");
-    var timestamp = entry.Timestamp ?? DateTime.UtcNow;
-    var fullEntry = entry with { Timestamp = timestamp, logId = Guid.NewGuid()};
-    var logText = JsonSerializer.Serialize(fullEntry);
-    logger.LogInformation(logText);
-    return Results.Ok(new { status = "ok", logId = fullEntry.logId });
-})
+app.MapPost("/api/logs/tasks/new", (TaskNew entry, PostNewTaskHandler handler) => handler.Handle(entry))
 .WithName("PostLogTaskNew")
 .WithOpenApi();
 
-app.MapPost("/api/logs/tasks/edit", (TaskEdit entry, ILoggerFactory loggerFactory) =>
-{
-    var logger = loggerFactory.CreateLogger("AppLogger");
-    var timestamp = entry.Timestamp ?? DateTime.UtcNow;
-    var fullEntry = entry with { Timestamp = timestamp, logId = Guid.NewGuid()};
-    var logText = JsonSerializer.Serialize(fullEntry);
-    logger.LogInformation(logText);
-    return Results.Ok(new { status = "ok", logId = fullEntry.logId });
-})
+app.MapPost("/api/logs/tasks/edit", (TaskEdit entry, PostEditTaskHandler handler) => handler.Handle(entry))
 .WithName("PostLogTaskEdit")
 .WithOpenApi();
 
-app.MapPost("/api/logs/tasks/delete", (TaskDelete entry, ILoggerFactory loggerFactory) =>
-{
-    var logger = loggerFactory.CreateLogger("AppLogger");
-    var timestamp = entry.Timestamp ?? DateTime.UtcNow;
-    var fullEntry = entry with { Timestamp = timestamp, logId = Guid.NewGuid()};
-    var logText = JsonSerializer.Serialize(fullEntry);
-    logger.LogInformation(logText);
-    return Results.Ok(new { status = "ok", logId = fullEntry.logId });
-})
+app.MapPost("/api/logs/tasks/delete", (TaskDelete entry, PostDeleteTaskHandler handler) => handler.Handle(entry))
 .WithName("PostLogTaskDelete")
 .WithOpenApi();
 
