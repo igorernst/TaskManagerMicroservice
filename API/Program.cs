@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MassTransit;
+using api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,11 @@ builder.Services.AddDbContext<TaskAPIDbContext>(options => options.UseNpgsql(bui
 builder.Services.Configure<LoggingApiSettings>(builder.Configuration.GetSection("LoggingServiceApi"));
 builder.Services.AddScoped<LoggingService>();
 builder.Services.AddScoped<TaskRepository>();
+builder.Services.AddScoped<GetTaskByIdHandler>();
+builder.Services.AddScoped<GetTasksHandler>();
+builder.Services.AddScoped<PostTaskHandler>();
+builder.Services.AddScoped<PutTaskHandler>();
+builder.Services.AddScoped<DeleteTaskHandler>();
 
 var rabbitMqHost = builder.Configuration["LogPublisherConfig:HostName"];
 
@@ -33,73 +39,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/tasks", (TaskRepository repo) =>
-{
-    return repo.GetAll();
-})
+app.MapGet("/tasks", (GetTasksHandler handler) => handler.Handle())
 .WithName("GetTasks")
 .WithOpenApi();
 
-app.MapGet("/tasks/{id}", (TaskRepository tasks, int id) =>
-{
-    return tasks.GetById(id);
-})
+app.MapGet("/tasks/{id}", (GetTaskByIdHandler handler, int id) => handler.Handle(id))
 .WithName("GetTask")
 .WithOpenApi();
 
-app.MapPost("/tasks", async (TaskEntity task, TaskRepository tasks, LoggingService logging, IPublishEndpoint publishEndpoint) =>
-{
-    var id = tasks.Add(task);
-    var loggingTask = logging.PostLogTaskNewAsync(new TaskNew(id, task.Title, task.Description, task.CreatedAt, task.Status));
-    var publishTask = publishEndpoint.Publish<Messages.TaskCreated>(new
-    {
-        Id = task.Id,
-        Title = task.Title,
-        Description = task.Description,
-        CreatedAt = task.CreatedAt,
-        UpdatedAt = task.UpdatedAt,
-        Status = task.Status
-    });
-    await Task.WhenAll(new List<Task>() { loggingTask, publishTask });
-    return id;
-})
+app.MapPost("/tasks", async (PostTaskHandler handler, TaskEntity task) => await handler.Handle(task))
 .WithName("CreateTask")
 .WithOpenApi();
 
-app.MapPut("/tasks/{id}", async (TaskEntity task, int id, TaskRepository tasks, LoggingService logging, IPublishEndpoint publishEndpoint) =>
-{
-    task.Id = id;
-    tasks.Update(task);
-    var loggingTask = logging.PostLogTaskEditAsync(new TaskEdit(id, task.Title, task.Description, task.CreatedAt, task.Status));
-    var publishTask = publishEndpoint.Publish<Messages.TaskUpdated>(new
-    {
-        Id = task.Id,
-        Title = task.Title,
-        Description = task.Description,
-        CreatedAt = task.CreatedAt,
-        UpdatedAt = task.UpdatedAt,
-        Status = task.Status
-    });
-    await Task.WhenAll(new List<Task>() { loggingTask, publishTask });
-})
+app.MapPut("/tasks/{id}", async (PutTaskHandler handler, TaskEntity task, int id) => await handler.Handle(task, id))
 .WithName("EditTask")
 .WithOpenApi();
 
-app.MapDelete("/tasks/{id}", async (int id, TaskRepository tasks, LoggingService logging, IPublishEndpoint publishEndpoint) =>
-{
-    var task = tasks.GetById(id);
-    if (task is null)
-    {
-        return;
-    }
-    tasks.Delete(id);
-    var loggingTask = logging.PostLogTaskDeleteAsync(new TaskDelete(id));
-    var publishTask = publishEndpoint.Publish<Messages.TaskDeleted>(new
-    {
-        Id = id
-    });
-    await Task.WhenAll(new List<Task>() { loggingTask, publishTask });
-})
+app.MapDelete("/tasks/{id}", async (DeleteTaskHandler handler, int id) => await handler.Handle(id))
 .WithName("DeleteTask")
 .WithOpenApi();
 
