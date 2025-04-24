@@ -4,9 +4,9 @@ namespace api;
 
 public class GetTaskByIdHandler {
 
-    private readonly TaskRepository _taskRepository;
+    private readonly IRepository<TaskEntity> _taskRepository;
 
-    public GetTaskByIdHandler(TaskRepository taskRepository)
+    public GetTaskByIdHandler(IRepository<TaskEntity> taskRepository)
     {
         _taskRepository = taskRepository;
     }
@@ -19,9 +19,9 @@ public class GetTaskByIdHandler {
 
 public class GetTasksHandler {
 
-    private readonly TaskRepository _taskRepository;
+    private readonly IRepository<TaskEntity> _taskRepository;
 
-    public GetTasksHandler(TaskRepository taskRepository)
+    public GetTasksHandler(IRepository<TaskEntity> taskRepository)
     {
         _taskRepository = taskRepository;
     }
@@ -35,11 +35,11 @@ public class GetTasksHandler {
 
 public class PostTaskHandler {
 
-    private readonly TaskRepository _taskRepository;
-    private readonly LoggingService _loggingService;
+    private readonly IRepository<TaskEntity> _taskRepository;
+    private readonly ILoggingService _loggingService;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public PostTaskHandler(TaskRepository taskRepository, LoggingService loggingService, IPublishEndpoint publishEndpoint)
+    public PostTaskHandler(IRepository<TaskEntity> taskRepository, ILoggingService loggingService, IPublishEndpoint publishEndpoint)
     {
         _taskRepository = taskRepository;
         _loggingService = loggingService;
@@ -66,11 +66,11 @@ public class PostTaskHandler {
 
 public class PutTaskHandler {
 
-    private readonly TaskRepository _taskRepository;
-    private readonly LoggingService _loggingService;
+    private readonly IRepository<TaskEntity> _taskRepository;
+    private readonly ILoggingService _loggingService;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public PutTaskHandler(TaskRepository taskRepository, LoggingService loggingService, IPublishEndpoint publishEndpoint)
+    public PutTaskHandler(IRepository<TaskEntity> taskRepository, ILoggingService loggingService, IPublishEndpoint publishEndpoint)
     {
         _taskRepository = taskRepository;
         _loggingService = loggingService;
@@ -97,11 +97,11 @@ public class PutTaskHandler {
 
 public class DeleteTaskHandler {
 
-    private readonly TaskRepository _taskRepository;
-    private readonly LoggingService _loggingService;
+    private readonly IRepository<TaskEntity> _taskRepository;
+    private readonly ILoggingService _loggingService;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public DeleteTaskHandler(TaskRepository taskRepository, LoggingService loggingService, IPublishEndpoint publishEndpoint)
+    public DeleteTaskHandler(IRepository<TaskEntity> taskRepository, ILoggingService loggingService, IPublishEndpoint publishEndpoint)
     {
         _taskRepository = taskRepository;
         _loggingService = loggingService;

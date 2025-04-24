@@ -6,8 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TaskAPIDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TaskApiDatabase")));
 builder.Services.Configure<LoggingApiSettings>(builder.Configuration.GetSection("LoggingServiceApi"));
-builder.Services.AddScoped<LoggingService>();
-builder.Services.AddScoped<TaskRepository>();
+builder.Services.AddScoped<ILoggingService, LoggingService>();
+builder.Services.AddScoped<IRepository<TaskEntity>, TaskRepository>();
 builder.Services.AddScoped<GetTaskByIdHandler>();
 builder.Services.AddScoped<GetTasksHandler>();
 builder.Services.AddScoped<PostTaskHandler>();

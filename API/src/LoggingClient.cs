@@ -1,5 +1,11 @@
 using Microsoft.Extensions.Options;
 
+public interface ILoggingService {
+    Task PostLogTaskNewAsync(TaskNew task);
+    Task PostLogTaskEditAsync(TaskEdit task);
+    Task PostLogTaskDeleteAsync(TaskDelete task);
+}
+
 public record TaskNew(
     int Id,
     string Title,
@@ -39,7 +45,7 @@ public class Endpoints
 /// <summary>
 /// HTTP client for Logging Service API
 /// </summary>
-public class LoggingService
+public class LoggingService : ILoggingService
 {
     private readonly HttpClient _httpClient;
     private readonly LoggingApiSettings _settings;
